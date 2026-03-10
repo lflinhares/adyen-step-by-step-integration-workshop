@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
-
 @Controller
 public class ViewController {
     private final Logger log = LoggerFactory.getLogger(ViewController.class);
@@ -36,6 +35,20 @@ public class ViewController {
         model.addAttribute("type", type);
         model.addAttribute("clientKey", this.applicationConfiguration.getAdyenClientKey());
         return "checkout";
+    }
+
+    @GetMapping("/checkout-preauth")
+    public String checkoutpreauth(@RequestParam String type, Model model) {
+        model.addAttribute("type", type);
+        model.addAttribute("clientKey", this.applicationConfiguration.getAdyenClientKey());
+        return "checkout-preauth";
+    }
+
+    @GetMapping("/checkout-subscription")
+    public String checkoutsubscription(@RequestParam String type, Model model) {
+        model.addAttribute("type", type);
+        model.addAttribute("clientKey", this.applicationConfiguration.getAdyenClientKey());
+        return "checkout-subscription";
     }
 
     @GetMapping("/result/{type}")

@@ -29,7 +29,8 @@ async function startCheckout() {
                 console.info("onSubmit", state, component, actions);
                 try {
                     if (state.isValid) {
-                        const { action, order, resultCode } = await fetch("/api/payments", {
+                        const url = window.location.pathname === "/checkout" ? "/api/payments" : "/api/subscription-create";
+                        const { action, order, resultCode } = await fetch(url, {
                             method: "POST",
                             body: state.data ? JSON.stringify(state.data) : "",
                             headers: {
@@ -55,15 +56,11 @@ async function startCheckout() {
             },
             onPaymentCompleted: (result, component) => {
                 console.info("onPaymentCompleted", result, component);
-                handleOnPaymentCompleted(result, component);
+                //handleOnPaymentCompleted(result, component);
             },
             onPaymentFailed: (result, component) => {
                 console.info("onPaymentFailed", result, component);
                 handleOnPaymentFailed(result, component);
-            },
-            onError: (error, component) => {
-                console.error("onError", error.name, error.message, error.stack, component);
-                window.location.href = "/result/error";
             },
             onAdditionalDetails: async (state, component, actions) => {
                 console.info("onAdditionalDetails", state, component);
@@ -146,6 +143,66 @@ function handleOnPaymentFailed(response) {
     }
 }
 
+function handlePaySubscription() {
 
+    const recurringDetailRef = document.getElementById("recurringDetailRef").value;
+    const shopperReference = document.getElementById("shopperReference").value;
+
+    if (!recurringDetailRef) {
+        alert("Please enter a recurringDetailRef");
+        return;
+    }
+
+    fetch("/api/subscription-payment", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json" // 👈 Add this line!
+    },
+    body: JSON.stringify({
+        recurringDetailRef: recurringDetailRef,
+        shopperReference: shopperReference
+    })
+})
+.then(response => response.json())
+.then(result => {
+    if (result.resultCode === "Authorised") {
+        document.body.innerHTML += "<p>Subscription payment successful!</p>";
+    } else {
+        document.body.innerHTML += "<p>Subscription payment failed: " + result.resultCode + "</p>";
+    }
+})
+.catch(error => {
+    console.error(error);
+    alert("Error occurred. Look at console for details.");
+});
+}
+
+function handleCancelSubscription() {
+    const recurringDetailRef = document.getElementById("recurringDetailRef").value;
+
+    fetch("/api/subscription-cancel", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            recurringDetailRef: recurringDetailRef,
+            shopperReference: "test-shopper-1234" // Lembre-se: tem que ser o mesmo do cliente!
+        })
+    })
+    .then(response => response.json())
+    .then(result => {
+        // A Adyen retorna response = "[detailSuccessfullyDisabled]" quando dá certo
+        if (result.response === "[detail-successfully-disabled]") {
+            alert("Assinatura cancelada com sucesso!");
+        } else {
+            alert("Erro ao cancelar: " + result.response);
+        }
+    })
+    .catch(error => console.error("Erro:", error));
+}
+
+
+// Step 9 - Call the function to
 
 startCheckout();

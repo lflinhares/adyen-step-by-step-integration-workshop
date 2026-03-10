@@ -1,0 +1,47 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <title>Checkout</title>
+</head>
+
+<body>
+    <div layout:fragment="content" id="payment-page">
+        <!-- Hidden divs with data passed from the Express server -->
+        <div id="clientKey" class="hidden" th:text="${clientKey}"></div>
+        <div id="type" class="hidden" th:text="${type}"></div>
+
+        <div class="container">
+            <!-- The Checkout integration type will be rendered below.-->
+            <!-- Drop-in includes styling out-of-the-box, so no additional styling is needed. -->
+            <div class="payment-container">
+                <div id="payment" class="payment"></div>
+            </div>
+        </div>
+
+        <div>
+            <div>
+                <label>Shopper Reference</label>
+                <input id="shopperReference" type="text" placeholder="test-shopper-1234" value="test-shopper-1234" />
+            </div>
+
+            <div>
+                <label>Recurring Detail Reference</label>
+                <input id="recurringDetailRef" type="text" placeholder="8415995487231234" />
+            </div>
+
+            <button onclick="handlePaySubscription()">Pay Subscription</button>
+
+            <button onclick="handleCancelSubscription()">Cancel Subscription</button>
+
+
+            <div id="result"></div>
+        </div>
+
+
+
+
+        <!-- Adyen Component client code -->
+        <script type="text/javascript" src="/adyenWebImplementation.js"></script>
+    </div>
+</body>
