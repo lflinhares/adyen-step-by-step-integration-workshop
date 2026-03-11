@@ -29,7 +29,7 @@ async function startCheckout() {
                 console.info("onSubmit", state, component, actions);
                 try {
                     if (state.isValid) {
-                        const url = window.location.pathname === "/checkout" ? "/api/payments" : "/api/subscription-create";
+                        const url = window.location.pathname === "/checkout" ? "/api/payments" : window.location.pathname === "/checkout-subscription" ? "/api/subscription-create" : "/api/preauthorisation";
                         const { action, order, resultCode } = await fetch(url, {
                             method: "POST",
                             body: state.data ? JSON.stringify(state.data) : "",
@@ -202,6 +202,90 @@ function handleCancelSubscription() {
     .catch(error => console.error("Erro:", error));
 }
 
+
+function getModificationData() {
+    const pspReference = document.getElementById("paymentPspReference").value;
+    const value = parseInt(document.getElementById("modificationValue").value, 10);
+    
+    if (!pspReference) {
+        alert("Please enter a valid PSP Reference!");
+        return null;
+    }
+    
+    // Retorna exatamente no formato que a classe ModificationRequestDTO do Java espera
+    return {
+        paymentPspReference: pspReference,
+        value: value
+    };
+}
+
+function handleCapture() {
+    const data = getModificationData();
+    if (!data) return;
+
+    fetch("/api/capture", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        document.getElementById("modification-result").innerHTML = 
+            "✅ Capture requested! Status: " + result.status + " (Check webhooks for final result)";
+    })
+    .catch(error => console.error(error));
+}
+
+function handleModifyAmount() {
+    const data = getModificationData();
+    if (!data) return;
+
+    fetch("/api/modify-amount", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        document.getElementById("modification-result").innerHTML = 
+            "✅ Amount Modification requested! Status: " + result.status + " (Check webhooks)";
+    })
+    .catch(error => console.error(error));
+}
+
+function handleCancelPreAuth() {
+    const data = getModificationData();
+    if (!data) return;
+
+    fetch("/api/cancel", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data) // A API de cancel não precisa estritamente do 'value', mas enviamos junto sem problemas
+    })
+    .then(response => response.json())
+    .then(result => {
+        document.getElementById("modification-result").innerHTML = 
+            "✅ Cancel requested! Status: " + result.status + " (Check webhooks)";
+    })
+    .catch(error => console.error(error));
+}
+
+function handleRefund() {
+    const data = getModificationData();
+    if (!data) return;
+
+    fetch("/api/refund", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        document.getElementById("modification-result").innerHTML = 
+            "✅ Refund requested! Status: " + result.status + " (Check webhooks)";
+    })
+    .catch(error => console.error(error));
+}
 
 // Step 9 - Call the function to
 

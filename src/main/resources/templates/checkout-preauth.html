@@ -1,0 +1,53 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+
+<head>
+    <title>Pre-Authorisation & Modifications</title>
+</head>
+
+<body>
+    <div layout:fragment="content" id="payment-page">
+        <!-- Hidden divs with data passed from the Express/Spring server -->
+        <div id="clientKey" class="hidden" th:text="${clientKey}"></div>
+        <div id="type" class="hidden" th:text="${type}"></div>
+
+        <div class="container">
+            <h2>1. Create Payment / Pre-Auth</h2>
+            <!-- Drop-in para gerar o pagamento inicial -->
+            <div class="payment-container">
+                <div id="payment" class="payment"></div>
+            </div>
+        </div>
+
+        <hr style="margin: 40px 0;">
+
+        <div class="container">
+            <h2>2. Post-Payment Modifications</h2>
+            <p>Use the PSP Reference from a successful Pre-Auth to capture, cancel, modify or refund.</p>
+
+            <div style="margin-bottom: 15px;">
+                <label style="display:block; font-weight:bold;">Original PSP Reference</label>
+                <input id="paymentPspReference" type="text" placeholder="e.g. 8516123456789012" style="width: 300px; padding: 5px;" />
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display:block; font-weight:bold;">Amount (in minor units, e.g., 5000 = 50 EUR)</label>
+                <input id="modificationValue" type="number" value="5000" style="width: 300px; padding: 5px;" />
+            </div>
+
+            <!-- Botões para chamar as rotas de modificação -->
+            <div style="display: flex; gap: 10px;">
+                <button onclick="handleCapture()" style="padding: 10px; background: #0abf53; color: white; border: none; cursor: pointer;">Capture</button>
+                <button onclick="handleModifyAmount()" style="padding: 10px; background: #007bff; color: white; border: none; cursor: pointer;">Modify Amount</button>
+                <button onclick="handleCancelPreAuth()" style="padding: 10px; background: #ffc107; color: black; border: none; cursor: pointer;">Cancel Pre-Auth</button>
+                <button onclick="handleRefund()" style="padding: 10px; background: #dc3545; color: white; border: none; cursor: pointer;">Refund (After Capture)</button>
+            </div>
+
+            <div id="modification-result" style="margin-top: 20px; font-weight: bold; color: #333;"></div>
+        </div>
+
+        <!-- Adyen Component client code -->
+        <script type="text/javascript" src="/adyenWebImplementation.js"></script>
+    </div>
+</body>
+</html>
